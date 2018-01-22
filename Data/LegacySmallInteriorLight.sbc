@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<CubeBlocks>
+
+		<!-- Legacy version for compatibility -->
+		<Definition xsi:type="MyObjectBuilder_LightingBlockDefinition">
+			<Id>
+				<TypeId>InteriorLight</TypeId>
+				<SubtypeId>SmallLight2</SubtypeId>
+			</Id>
+			<Public>false</Public>
+			<BlockPairName>InteriorLightCompatibility</BlockPairName>
+			<DisplayName>DisplayName_Block_InteriorLight</DisplayName>
+			<Icon>Textures\GUI\Icons\Cubes\interior_light.dds</Icon>
+			<CubeSize>Small</CubeSize>
+			<BlockTopology>TriangleMesh</BlockTopology>
+			<Size x="1" y="1" z="1" />
+			<ModelOffset x="0" y="0" z="-1" />
+			<Model>Models\SmallInteriorLight.mwm</Model>
+			<Components>
+				<Component Subtype="SteelPlate" Count="1" />
+				<Component Subtype="Construction" Count="1" />
+			</Components>
+			<CriticalComponent Subtype="Construction" Index="0" />
+			<MountPoints>
+				<MountPoint Side="Back" ExclusionMask="3" PropertiesMask="3" StartX="0.4" StartY="0.44" EndX="0.6" EndY="0.55" />
+			</MountPoints>
+			<BuildProgressModels>
+				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\InteriorLightConstruction_1.mwm" />
+			</BuildProgressModels>
+			<MirroringZ>Y</MirroringZ>
+			<BuildTimeSeconds>3</BuildTimeSeconds>
+			<LightRadius Min="1" Max="10" Default="3.6" />
+			<LightFalloff Min="1" Max="3" Default="1" />
+			<LightIntensity Min="1" Max="5" Default="1.5" />
+			<ResourceSinkGroup>Utility</ResourceSinkGroup>
+			<RequiredPowerInput>0.00006</RequiredPowerInput>
+			<DamageEffectId>214</DamageEffectId>
+			<DamagedSound>ParticleElectrical</DamagedSound>
+			<LightGlare>GlareLsInteriorLight</LightGlare>
+			<Flare>InteriorLightSmall</Flare>
+		</Definition>
+
+	</CubeBlocks>
+</Definitions>
