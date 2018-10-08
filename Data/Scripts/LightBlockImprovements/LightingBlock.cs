@@ -50,7 +50,7 @@ namespace Digi.InteriorLightAccess
             block.IsWorkingChanged -= UpdateSettings;
             block.PropertiesChanged -= UpdateSettings;
         }
-        
+
         private void UpdateSettings(IMyCubeBlock _NotUsed)
         {
             try
@@ -68,7 +68,7 @@ namespace Digi.InteriorLightAccess
 
                 UpdateIntensity();
                 UpdateEnabled();
-                UpdateEmissivity(false);
+                UpdateEmissivity();
             }
             catch(Exception e)
             {
@@ -95,28 +95,16 @@ namespace Digi.InteriorLightAccess
         {
             try
             {
-                float newLightPower = GetNewLightPower();
-
-                if(newLightPower != currentLightPower)
-                {
-                    currentLightPower = newLightPower;
-                    UpdateIntensity();
-                }
-
                 UpdateLightBlink();
+                UpdateIntensity();
                 UpdateEnabled();
-                UpdateEmissivity(false);
+                UpdateEmissivity();
             }
             catch(Exception e)
             {
                 MyLog.Default.WriteLine(e);
                 MyAPIGateway.Utilities.ShowNotification($"[ Error in {GetType().FullName}: {e.Message} ]", 10000, MyFontEnum.Red);
             }
-        }
-        
-        private float GetNewLightPower()
-        {
-            return MathHelper.Clamp(currentLightPower + (float)(block.IsWorking ? 1 : -1) * LIGHT_FADE_SPEED, 0f, 1f);
         }
 
         private void UpdateLightBlink()
@@ -139,15 +127,16 @@ namespace Digi.InteriorLightAccess
 
         private void UpdateIntensity()
         {
+            currentLightPower = MathHelper.Clamp(currentLightPower + (float)(block.IsWorking ? 1 : -1) * LIGHT_FADE_SPEED, 0f, 1f);
             currentIntensity = currentLightPower * intensity;
         }
 
         private void UpdateEnabled()
         {
-            lightOn = currentLightPower * intensity > 0f && blinkOn;
+            lightOn = (blinkOn && (currentLightPower * intensity > 0f));
         }
 
-        private void UpdateEmissivity(bool force)
+        private void UpdateEmissivity()
         {
             var setIntensity = (lightOn ? currentIntensity : 0);
 
