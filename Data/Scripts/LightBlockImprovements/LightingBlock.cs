@@ -21,16 +21,14 @@ namespace Digi.InteriorLightAccess
     public class LightingBlock : MyGameLogicComponent
     {
         private IMyLightingBlock block;
-
         private Color bulbColor;
-        private float intensity;
-        private bool lightOn;
-        private bool blinkOn;
-        private float currentIntensity;
-        private float currentLightPower;
+        private float intensity = 0;
+        private bool lightOn = true;
+        private bool blinkOn = true;
+        private float oldLightPower = 0;
 
         private const float LIGHT_FADE_SPEED = 0.05f;
-        private const double UPDATE_VIEW_DIST_SQ = 3000 * 3000;
+        private const double UPDATE_VIEW_DIST = 3000; // rectangular distance
 
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
         {
@@ -51,22 +49,21 @@ namespace Digi.InteriorLightAccess
             block.PropertiesChanged -= UpdateSettings;
         }
 
-        private void UpdateSettings(IMyCubeBlock _NotUsed)
+        private bool InViewRange => (MyAPIGateway.Session.Camera.WorldMatrix.Translation - block.WorldMatrix.Translation).AbsMax() <= UPDATE_VIEW_DIST;
+
+        private float LightPower => MathHelper.Clamp(oldLightPower + (block.IsWorking ? 1 : -1) * LIGHT_FADE_SPEED, 0f, 1f);
+
+        private void UpdateSettings(IMyCubeBlock _)
         {
             try
             {
-                if(Vector3D.DistanceSquared(MyAPIGateway.Session.Camera.WorldMatrix.Translation, block.WorldMatrix.Translation) > UPDATE_VIEW_DIST_SQ)
-                    return; // ignore lights that are too far away
-
-                NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME;
-
                 var def = (MyLightingBlockDefinition)block.SlimBlock.BlockDefinition;
                 intensity = (block.Intensity / def.LightIntensity.Max);
 
-                var colorIntensity = Math.Max(0.5f * intensity, 0.1f);
+                var colorIntensity = Math.Max(0.5f * intensity, 0.3f);
                 bulbColor = block.Color * colorIntensity;
 
-                UpdateIntensity();
+                UpdateLightPower();
                 UpdateEnabled();
                 UpdateEmissivity();
             }
@@ -81,7 +78,15 @@ namespace Digi.InteriorLightAccess
 
         public override void UpdateAfterSimulation100()
         {
-            if((block.BlinkIntervalSeconds > 0f) || (GetNewLightPower() != currentLightPower))
+            if(!InViewRange)
+            {
+                NeedsUpdate &= ~MyEntityUpdateEnum.EACH_FRAME;
+                return;
+            }
+
+            UpdateSettings(block);
+
+            if((block.BlinkIntervalSeconds > 0.00099f) || Math.Abs(LightPower - oldLightPower) >= 0.01f)
             {
                 NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
             }
@@ -96,7 +101,7 @@ namespace Digi.InteriorLightAccess
             try
             {
                 UpdateLightBlink();
-                UpdateIntensity();
+                UpdateLightPower();
                 UpdateEnabled();
                 UpdateEmissivity();
             }
@@ -119,27 +124,29 @@ namespace Digi.InteriorLightAccess
                 ulong num4 = num3 % num;
                 ulong num5 = (ulong)(num * block.BlinkLength * 0.01f);
                 blinkOn = (num5 > num4);
-                return;
             }
-
-            blinkOn = true;
+            else
+            {
+                blinkOn = true;
+            }
         }
 
-        private void UpdateIntensity()
+        private void UpdateLightPower()
         {
-            currentLightPower = MathHelper.Clamp(currentLightPower + (float)(block.IsWorking ? 1 : -1) * LIGHT_FADE_SPEED, 0f, 1f);
-            currentIntensity = currentLightPower * intensity;
+            oldLightPower = LightPower;
         }
 
         private void UpdateEnabled()
         {
-            lightOn = (blinkOn && (currentLightPower * intensity > 0f));
+            lightOn = (blinkOn && (oldLightPower * intensity) > 0f);
         }
 
         private void UpdateEmissivity()
         {
-            var setIntensity = (lightOn ? currentIntensity : 0);
+            if(!InViewRange)
+                return;
 
+            var setIntensity = (lightOn ? (oldLightPower * intensity) : 0);
             block.SetEmissiveParts("Bulb", bulbColor, setIntensity);
 
             if(block is IMyReflectorLight)
