@@ -24,41 +24,60 @@ namespace Digi.LightBlockImprovements
 
         public override void LoadData()
         {
-            if(MyAPIGateway.Session.IsServer)
+            try
             {
-                MyEntities.OnEntityAdd += OnEntityAdded;
+                Log.ModName = "Light Block Improvements";
+                Log.AutoClose = false;
+
+                if(MyAPIGateway.Session.IsServer)
+                {
+                    MyEntities.OnEntityAdd += OnEntityAdded;
+                }
+
+                // Dynamic definition editing without needing to set the other values
+                MyLightingBlockDefinition def;
+
+                def = GetDefAndSetModel(typeof(MyObjectBuilder_InteriorLight), "SmallLight", @"Models\LargeInteriorLight.mwm");
+                if(def != null)
+                {
+                    def.LightFalloff.Min = 0.5f;
+                    def.LightIntensity.Min = 0.5f;
+                }
+
+                def = GetDefAndSetModel(typeof(MyObjectBuilder_InteriorLight), "SmallBlockSmallLight", @"Models\SmallInteriorLight.mwm");
+                if(def != null)
+                {
+                    def.LightFalloff.Min = 0.5f;
+                    def.LightIntensity.Min = 0.5f;
+                }
+
+                def = GetDefAndSetModel(typeof(MyObjectBuilder_ReflectorLight), "LargeBlockFrontLight", @"Models\LargeSpotlight.mwm");
+                def = GetDefAndSetModel(typeof(MyObjectBuilder_ReflectorLight), "SmallBlockFrontLight", @"Models\SmallSpotlight.mwm");
+
+                def = GetDefAndSetModel(typeof(MyObjectBuilder_InteriorLight), "LargeBlockLight_1corner", @"Models\LargeCornerLight.mwm");
+                def = GetDefAndSetModel(typeof(MyObjectBuilder_InteriorLight), "SmallBlockLight_1corner", @"Models\SmallCornerLight.mwm");
+
+                def = GetDefAndSetModel(typeof(MyObjectBuilder_InteriorLight), "LargeBlockLight_2corner", @"Models\LargeCornerLightDouble.mwm");
+                def = GetDefAndSetModel(typeof(MyObjectBuilder_InteriorLight), "SmallBlockLight_2corner", @"Models\SmallCornerLightDouble.mwm");
             }
-
-            // Dynamic definition editing without needing to set the other values
-            MyLightingBlockDefinition def;
-
-            def = GetDefAndSetModel(typeof(MyObjectBuilder_InteriorLight), "SmallLight", @"Models\LargeInteriorLight.mwm");
-            if(def != null)
+            catch(Exception e)
             {
-                def.LightFalloff.Min = 0.5f;
-                def.LightIntensity.Min = 0.5f;
+                Log.Error(e);
+                UnloadData();
+                throw;
             }
-
-            def = GetDefAndSetModel(typeof(MyObjectBuilder_InteriorLight), "SmallBlockSmallLight", @"Models\SmallInteriorLight.mwm");
-            if(def != null)
-            {
-                def.LightFalloff.Min = 0.5f;
-                def.LightIntensity.Min = 0.5f;
-            }
-
-            def = GetDefAndSetModel(typeof(MyObjectBuilder_ReflectorLight), "LargeBlockFrontLight", @"Models\LargeSpotlight.mwm");
-            def = GetDefAndSetModel(typeof(MyObjectBuilder_ReflectorLight), "SmallBlockFrontLight", @"Models\SmallSpotlight.mwm");
-
-            def = GetDefAndSetModel(typeof(MyObjectBuilder_InteriorLight), "LargeBlockLight_1corner", @"Models\LargeCornerLight.mwm");
-            def = GetDefAndSetModel(typeof(MyObjectBuilder_InteriorLight), "SmallBlockLight_1corner", @"Models\SmallCornerLight.mwm");
-
-            def = GetDefAndSetModel(typeof(MyObjectBuilder_InteriorLight), "LargeBlockLight_2corner", @"Models\LargeCornerLightDouble.mwm");
-            def = GetDefAndSetModel(typeof(MyObjectBuilder_InteriorLight), "SmallBlockLight_2corner", @"Models\SmallCornerLightDouble.mwm");
         }
 
         protected override void UnloadData()
         {
-            MyEntities.OnEntityAdd -= OnEntityAdded;
+            try
+            {
+                MyEntities.OnEntityAdd -= OnEntityAdded;
+            }
+            finally
+            {
+                Log.Close();
+            }
         }
 
         private MyLightingBlockDefinition GetDefAndSetModel(Type type, string subtypeId, string model)

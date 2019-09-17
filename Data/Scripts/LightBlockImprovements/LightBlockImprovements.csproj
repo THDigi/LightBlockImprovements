@@ -114,6 +114,7 @@
   <ItemGroup>
     <Compile Include="LightBlockImprovements.cs" />
     <Compile Include="LightingBlock.cs" />
+    <Compile Include="Log.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

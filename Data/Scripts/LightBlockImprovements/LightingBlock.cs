@@ -2,12 +2,10 @@
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.ModAPI;
-using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
 using VRage.ObjectBuilders;
-using VRage.Utils;
 using VRageMath;
 
 namespace Digi.LightBlockImprovements
@@ -38,20 +36,34 @@ namespace Digi.LightBlockImprovements
 
         public override void UpdateOnceBeforeFrame()
         {
-            if(block?.CubeGrid?.Physics == null)
-                return;
+            try
+            {
+                if(block?.CubeGrid?.Physics == null)
+                    return;
 
-            NeedsUpdate = MyEntityUpdateEnum.EACH_100TH_FRAME;
+                NeedsUpdate = MyEntityUpdateEnum.EACH_100TH_FRAME;
 
-            block.IsWorkingChanged += UpdateSettings;
-            block.PropertiesChanged += UpdateSettings;
-            UpdateSettings(block);
+                block.IsWorkingChanged += UpdateSettings;
+                block.PropertiesChanged += UpdateSettings;
+                UpdateSettings(block);
+            }
+            catch(Exception e)
+            {
+                Log.Error(e);
+            }
         }
 
         public override void Close()
         {
-            block.IsWorkingChanged -= UpdateSettings;
-            block.PropertiesChanged -= UpdateSettings;
+            try
+            {
+                block.IsWorkingChanged -= UpdateSettings;
+                block.PropertiesChanged -= UpdateSettings;
+            }
+            catch(Exception e)
+            {
+                Log.Error(e);
+            }
         }
 
         private bool InViewRange => (MyAPIGateway.Session.Camera.WorldMatrix.Translation - block.WorldMatrix.Translation).AbsMax() <= UPDATE_VIEW_DIST;
@@ -74,8 +86,7 @@ namespace Digi.LightBlockImprovements
             }
             catch(Exception e)
             {
-                MyLog.Default.WriteLine(e);
-                MyAPIGateway.Utilities.ShowNotification($"[ Error in {GetType().FullName}: {e.Message} ]", 10000, MyFontEnum.Red);
+                Log.Error(e);
             }
         }
 
@@ -83,21 +94,28 @@ namespace Digi.LightBlockImprovements
 
         public override void UpdateAfterSimulation100()
         {
-            if(!InViewRange)
+            try
             {
-                NeedsUpdate &= ~MyEntityUpdateEnum.EACH_FRAME;
-                return;
-            }
+                if(!InViewRange)
+                {
+                    NeedsUpdate &= ~MyEntityUpdateEnum.EACH_FRAME;
+                    return;
+                }
 
-            UpdateSettings(block);
+                UpdateSettings(block);
 
-            if((block.BlinkIntervalSeconds > 0.00099f) || Math.Abs(LightPower - oldLightPower) >= 0.01f)
-            {
-                NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
+                if((block.BlinkIntervalSeconds > 0.00099f) || Math.Abs(LightPower - oldLightPower) >= 0.01f)
+                {
+                    NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
+                }
+                else
+                {
+                    NeedsUpdate &= ~MyEntityUpdateEnum.EACH_FRAME;
+                }
             }
-            else
+            catch(Exception e)
             {
-                NeedsUpdate &= ~MyEntityUpdateEnum.EACH_FRAME;
+                Log.Error(e);
             }
         }
 
@@ -112,8 +130,7 @@ namespace Digi.LightBlockImprovements
             }
             catch(Exception e)
             {
-                MyLog.Default.WriteLine(e);
-                MyAPIGateway.Utilities.ShowNotification($"[ Error in {GetType().FullName}: {e.Message} ]", 10000, MyFontEnum.Red);
+                Log.Error(e);
             }
         }
 
