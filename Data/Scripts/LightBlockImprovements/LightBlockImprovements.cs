@@ -12,10 +12,10 @@ using VRage.Game.ModAPI;
 using VRage.Utils;
 using VRageMath;
 
-namespace Digi.InteriorLightAccess
+namespace Digi.LightBlockImprovements
 {
     [MySessionComponentDescriptor(MyUpdateOrder.BeforeSimulation)]
-    public class InteriorLightAccess : MySessionComponentBase
+    public class LightBlockImprovementsMod : MySessionComponentBase
     {
         private readonly MyDefinitionId OLD_LIGHT_DEFID = new MyDefinitionId(typeof(MyObjectBuilder_LightingBlock), MyStringHash.GetOrCompute("SmallLight2"));
         private const string NEW_LIGHT_SUBID = "SmallBlockSmallLight"; // subtype ID to replace the above block with

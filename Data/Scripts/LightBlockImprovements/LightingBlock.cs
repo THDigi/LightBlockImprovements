@@ -10,7 +10,7 @@ using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
 
-namespace Digi.InteriorLightAccess
+namespace Digi.LightBlockImprovements
 {
     [MyEntityComponentDescriptor(typeof(MyObjectBuilder_InteriorLight), false)]
     public class InteriorLight : LightingBlock { }
