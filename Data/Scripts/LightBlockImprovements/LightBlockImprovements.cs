@@ -14,7 +14,7 @@ using VRageMath;
 
 namespace Digi.LightBlockImprovements
 {
-    [MySessionComponentDescriptor(MyUpdateOrder.BeforeSimulation)]
+    [MySessionComponentDescriptor(MyUpdateOrder.NoUpdate)]
     public class LightBlockImprovementsMod : MySessionComponentBase
     {
         private readonly MyDefinitionId OLD_LIGHT_DEFID = new MyDefinitionId(typeof(MyObjectBuilder_LightingBlock), MyStringHash.GetOrCompute("SmallLight2"));
