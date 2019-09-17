@@ -33,11 +33,16 @@ namespace Digi.LightBlockImprovements
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
         {
             block = (IMyLightingBlock)Entity;
-            NeedsUpdate = MyEntityUpdateEnum.BEFORE_NEXT_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
+            NeedsUpdate = MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
         }
 
         public override void UpdateOnceBeforeFrame()
         {
+            if(block?.CubeGrid?.Physics == null)
+                return;
+
+            NeedsUpdate = MyEntityUpdateEnum.EACH_100TH_FRAME;
+
             block.IsWorkingChanged += UpdateSettings;
             block.PropertiesChanged += UpdateSettings;
             UpdateSettings(block);
