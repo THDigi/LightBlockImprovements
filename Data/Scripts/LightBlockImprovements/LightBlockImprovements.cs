@@ -142,6 +142,8 @@ namespace Digi.LightBlockImprovements
                 lightDef.LightFalloff.Min = falloff_min.Value;
             }
 
+            lightDef.LightFalloff.Default = 1f;
+
             if(intensity_min.HasValue)
             {
                 backup.LightIntensity = lightDef.LightIntensity;
